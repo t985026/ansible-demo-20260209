@@ -5,8 +5,8 @@
 ### 1. 修復的問題
 
 - ✅ **deploy.sh**: 移除重複函數定義，修正執行流程
-- ✅ **web_server_setup.yml**: 修復第 83 行錯誤的 Nginx 配置檔路徑
-- ✅ **web_server_setup.yml**: 添加 vars 段落，定義必要變數
+- ✅ **tasks/web_server_setup.yml**: 修復第 83 行錯誤的 Nginx 配置檔路徑
+- ✅ **tasks/web_server_setup.yml**: 添加 vars 段落，定義必要變數
 - ✅ **Readme.md**: 擴充為完整的 Killercoda 使用指南
 
 ### 2. 新增的檔案
@@ -68,7 +68,8 @@ demo/
 ├── verify_environment.sh        ✅ 環境驗證腳本
 ├── KILLERCODA_QUICKSTART.md     ✅ 快速啟動指南
 ├── Readme.md                    ✅ 詳細說明文件
-├── web_server_setup.yml         ✅ Ansible Playbook
+├── tasks/                       ✅ Playbook 目錄 ⭐
+│   └── web_server_setup.yml     ✅ Ansible Playbook
 ├── inventory/
 │   └── hosts                   ✅ 主機清單（controlplane + node01）
 └── templates/
@@ -110,7 +111,7 @@ web_user: webadmin
 admin_user: ansible_admin
 ```
 
-### web_server_setup.yml - 變數自動載入
+### tasks/web_server_setup.yml - 變數自動載入
 
 ```yaml
 # Ansible 自動載入 group_vars/ 目錄下的變數

@@ -41,7 +41,7 @@ REQUIRED_FILES=(
     "inventory/hosts"
     "templates/index.html.j2"
     "templates/nginx.conf.j2"
-    "web_server_setup.yml"
+    "tasks/web_server_setup.yml"
     "deploy.sh"
 )
 

@@ -34,7 +34,7 @@ demo/
 │   └── controlplane.yml    # controlplane 特定變數
 ├── inventory/
 │   └── hosts               # 主機清單
-└── web_server_setup.yml    # Playbook
+└── tasks/\n    web_server_setup.yml    # Playbook
 ```
 
 ## 🔧 實際配置
@@ -99,7 +99,7 @@ web_root: /var/www/node01_custom  # 覆蓋 group_vars/webservers.yml
 custom_service_port: 8080
 ```
 
-### 5. web_server_setup.yml
+### 5. tasks/web_server_setup.yml
 
 Playbook 中無需聲明 vars_files，Ansible 會自動載入：
 
@@ -162,7 +162,7 @@ web_root: /var/www/node01
 
 ```bash
 # 直接執行，變數自動載入
-ansible-playbook -i inventory/hosts web_server_setup.yml
+ansible-playbook -i inventory/hosts tasks/web_server_setup.yml
 
 # 查看變數值（調試用）
 ansible -i inventory/hosts webservers -m debug -a "var=web_root"
@@ -189,7 +189,7 @@ ln -sf webservers_prod.yml webservers.yml
 ansible-vault encrypt group_vars/webservers.yml
 
 # 執行時提供密碼
-ansible-playbook -i inventory/hosts web_server_setup.yml --ask-vault-pass
+ansible-playbook -i inventory/hosts tasks/web_server_setup.yml --ask-vault-pass
 
 # 或僅加密特定變數
 ansible-vault encrypt_string 'my_secret_password' --name 'db_password'
@@ -304,13 +304,13 @@ ansible -i inventory/hosts node01 -m debug -a "var=hostvars[inventory_hostname]"
 
 ```bash
 # 語法檢查
-ansible-playbook --syntax-check web_server_setup.yml
+ansible-playbook --syntax-check tasks/web_server_setup.yml
 
 # 列出將執行的任務（不實際執行）
-ansible-playbook -i inventory/hosts web_server_setup.yml --list-tasks
+ansible-playbook -i inventory/hosts tasks/web_server_setup.yml --list-tasks
 
 # Dry run（模擬執行）
-ansible-playbook -i inventory/hosts web_server_setup.yml --check
+ansible-playbook -i inventory/hosts tasks/web_server_setup.yml --check
 ```
 
 ## 📖 相關資源
@@ -348,7 +348,7 @@ http_port=8443
 ```yaml
 ---
 # Ansible Demo Variables
-# 用於 web_server_setup.yml
+# 用於 tasks/web_server_setup.yml
 
 # 網站相關配置
 web_root: /var/www/demo
@@ -362,7 +362,7 @@ http_port: 8443
 
 ### 2. 更新 Playbook
 
-**文件**: `web_server_setup.yml`
+**文件**: `tasks/web_server_setup.yml`
 
 **修改前**:
 
@@ -466,16 +466,16 @@ vars_files:
 
 ```bash
 # 1. 語法檢查
-ansible-playbook --syntax-check web_server_setup.yml
+ansible-playbook --syntax-check tasks/web_server_setup.yml
 
 # 2. 變數檢查（查看所有變數）
-ansible-playbook -i inventory/hosts web_server_setup.yml --list-tasks
+ansible-playbook -i inventory/hosts tasks/web_server_setup.yml --list-tasks
 
 # 3. 模擬執行（不實際改變系統）
-ansible-playbook -i inventory/hosts web_server_setup.yml --check
+ansible-playbook -i inventory/hosts tasks/web_server_setup.yml --check
 
 # 4. 正式執行
-ansible-playbook -i inventory/hosts web_server_setup.yml
+ansible-playbook -i inventory/hosts tasks/web_server_setup.yml
 ```
 
 ### 預期結果
@@ -493,7 +493,7 @@ ansible-playbook -i inventory/hosts web_server_setup.yml
 ansible-vault encrypt vars.yml
 
 # 執行時提供密碼
-ansible-playbook -i inventory/hosts web_server_setup.yml --ask-vault-pass
+ansible-playbook -i inventory/hosts tasks/web_server_setup.yml --ask-vault-pass
 ```
 
 ### 2. 變數模板化

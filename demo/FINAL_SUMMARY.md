@@ -11,7 +11,8 @@
 ```
 demo/
 ├── deploy.sh                    # 主要部署腳本
-├── web_server_setup.yml         # Ansible Playbook (14 tasks)
+├── tasks/                       # Playbook 目錄 ⭐
+│   └── web_server_setup.yml     # Ansible Playbook (14 tasks)
 ├── group_vars/                  # 變數管理（Ansible 標準結構）
 │   ├── all.yml                 # 全域變數
 │   └── webservers.yml          # webservers 群組變數
@@ -35,7 +36,7 @@ demo/
 ```yaml
 ---
 # Ansible Demo - Web Server Variables
-# 此文件定義 web_server_setup.yml 所需的所有變數
+# 此文件定義 tasks/web_server_setup.yml 所需的所有變數
 
 # 網站相關配置
 web_root: /var/www/demo
@@ -65,7 +66,7 @@ node01
 node01
 ```
 
-### 4. web_server_setup.yml
+### 4. tasks/web_server_setup.yml
 
 - **總任務數**: 14 個
 - **執行階段**: 6 個（基礎安裝、服務管理、環境配置、權限管理、內容部署、驗證）
@@ -176,13 +177,13 @@ curl http://node01
 3. **語法錯誤**
 
    ```bash
-   ansible-playbook --syntax-check web_server_setup.yml
+   ansible-playbook --syntax-check tasks/web_server_setup.yml
    ```
 
 4. **模擬執行（不實際改變系統）**
 
    ```bash
-   ansible-playbook -i inventory/hosts web_server_setup.yml --check
+   ansible-playbook -i inventory/hosts tasks/web_server_setup.yml --check
    ```
 
 ## 📖 延伸學習資源

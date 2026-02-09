@@ -54,7 +54,7 @@ chmod +x deploy.sh
 ansible -i inventory/hosts all -m ping
 
 # 2. 執行 Playbook
-ansible-playbook -i inventory/hosts web_server_setup.yml
+ansible-playbook -i inventory/hosts tasks/web_server_setup.yml
 
 # 3. 驗證部署結果
 curl http://node01
@@ -85,10 +85,11 @@ demo/
 │   └── webservers.yml    # webservers 群組專用變數
 ├── inventory/
 │   └── hosts             # 主機清單（controlplane + node01）
+├── tasks/                 # Playbook 目錄 ⭐
+│   └── web_server_setup.yml  # 主要 Playbook
 ├── templates/
 │   ├── index.html.j2     # 網頁模板（使用 Jinja2）
 │   └── nginx.conf.j2     # Nginx 配置模板
-├── web_server_setup.yml  # 主要 Playbook
 └── Readme.md             # 本文件
 ```
 

@@ -57,7 +57,7 @@ ansible -i inventory/hosts all -m shell -a "hostname"
 ### 手動執行 Playbook（調試模式）
 
 ```bash
-ansible-playbook -i inventory/hosts web_server_setup.yml -vvv
+ansible-playbook -i inventory/hosts tasks/web_server_setup.yml -vvv
 ```
 
 ### 清理重新開始
@@ -77,7 +77,7 @@ ssh node01 "apt remove nginx -y && rm -rf /var/www/demo /var/log/nginx_custom &&
    - 說明 SSH 免密碼登入原理
 
 3. **Playbook 解析** (10 分鐘)
-   - 逐行解釋 web_server_setup.yml
+   - 逐行解釋 tasks/web_server_setup.yml
    - 說明 tasks, handlers, vars 的作用
 
 4. **實際部署** (10 分鐘)
