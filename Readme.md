@@ -55,10 +55,10 @@ chmod +x deploy.sh
 
 ```bash
 # 完整部署 (基礎環境 + 加固 + Web Server)
-ansible-playbook -i inventory/staging complete_bootstrap.yml
+ansible-playbook -i inventory/staging tasks/complete_bootstrap.yml
 
 # 或僅部署基礎環境
-ansible-playbook -i inventory/staging base_system_setup.yml
+ansible-playbook -i inventory/staging tasks/base_system_setup.yml
 ```
 
 ### 個別元件部署
@@ -66,19 +66,19 @@ ansible-playbook -i inventory/staging base_system_setup.yml
 ### 1. 基礎環境建置 (Ubuntu/RHEL 系統初始化)
 
 ```bash
-ansible-playbook -i inventory/staging base_system_setup.yml
+ansible-playbook -i inventory/staging tasks/base_system_setup.yml
 ```
 
 ### 2. 部署網頁伺服器
 
 ```bash
-ansible-playbook -i inventory/staging web_server_setup.yml
+ansible-playbook -i inventory/staging tasks/web_server_setup.yml
 ```
 
 ### 3. 系統加固
 
 ```bash
-ansible-playbook -i inventory/staging system_hardening.yml
+ansible-playbook -i inventory/staging tasks/system_hardening.yml
 ```
 
 ---
@@ -87,11 +87,11 @@ ansible-playbook -i inventory/staging system_hardening.yml
 
 | Playbook | 用途 | 執行指令 |
 |----------|------|----------|
-| `preflight_check.yml` | 前置系統檢查 | `ansible-playbook -i inventory/staging preflight_check.yml` |
-| `base_system_setup.yml` | 基礎環境建置 | `ansible-playbook -i inventory/staging base_system_setup.yml` |
-| `system_hardening.yml` | 系統安全加固 | `ansible-playbook -i inventory/staging system_hardening.yml` |
-| `web_server_setup.yml` | Web Server 部署 | `ansible-playbook -i inventory/staging web_server_setup.yml` |
-| `complete_bootstrap.yml` | 完整系統部署 | `ansible-playbook -i inventory/staging complete_bootstrap.yml` |
+| `tasks/preflight_check.yml` | 前置系統檢查 | `ansible-playbook -i inventory/staging tasks/preflight_check.yml` |
+| `tasks/base_system_setup.yml` | 基礎環境建置 | `ansible-playbook -i inventory/staging tasks/base_system_setup.yml` |
+| `tasks/system_hardening.yml` | 系統安全加固 | `ansible-playbook -i inventory/staging tasks/system_hardening.yml` |
+| `tasks/web_server_setup.yml` | Web Server 部署 | `ansible-playbook -i inventory/staging tasks/web_server_setup.yml` |
+| `tasks/complete_bootstrap.yml` | 完整系統部署 | `ansible-playbook -i inventory/staging tasks/complete_bootstrap.yml` |
 | `tools/connectivity_check.yml` | 連線測試 | `ansible-playbook -i inventory/staging tools/connectivity_check.yml` |
 
 ---

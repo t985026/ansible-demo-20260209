@@ -72,7 +72,7 @@ ping_test() {
 
 run_web_server_setup() {
     print_info "執行 Web Server 部署..."
-    ansible-playbook -i inventory/hosts web_server_setup.yml
+    ansible-playbook -i inventory/hosts tasks/web_server_setup.yml
     print_success "Web Server 部署完成"
 }
 

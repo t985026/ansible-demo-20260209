@@ -66,31 +66,31 @@ check_prerequisites() {
 
 run_preflight_check() {
     print_info "執行前置系統檢查..."
-    ansible-playbook -i inventory/staging preflight_check.yml
+    ansible-playbook -i inventory/staging tasks/preflight_check.yml
     print_success "前置檢查通過"
 }
 
 run_base_setup() {
     print_info "執行基礎環境建置..."
-    ansible-playbook -i inventory/staging base_system_setup.yml
+    ansible-playbook -i inventory/staging tasks/base_system_setup.yml
     print_success "基礎環境建置完成"
 }
 
 run_system_hardening() {
     print_info "執行系統安全加固..."
-    ansible-playbook -i inventory/staging system_hardening.yml
+    ansible-playbook -i inventory/staging tasks/system_hardening.yml
     print_success "系統加固完成"
 }
 
 run_web_server_setup() {
     print_info "執行 Web Server 部署..."
-    ansible-playbook -i inventory/staging web_server_setup.yml
+    ansible-playbook -i inventory/staging tasks/web_server_setup.yml
     print_success "Web Server 部署完成"
 }
 
 run_complete_bootstrap() {
     print_info "執行完整系統部署..."
-    ansible-playbook -i inventory/staging complete_bootstrap.yml
+    ansible-playbook -i inventory/staging tasks/complete_bootstrap.yml
     print_success "完整部署完成"
 }
 
