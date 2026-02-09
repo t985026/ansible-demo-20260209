@@ -9,7 +9,6 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-
 # ==========================================
 # 函數定義
 # ==========================================
@@ -53,8 +52,8 @@ check_prerequisites() {
     print_success "Ansible 已安裝: $ansible_version"
     
     # 檢查 inventory 檔案是否存在
-    if [ ! -f "hosts" ]; then
-        print_error "找不到 hosts 檔案！"
+    if [ ! -f "inventory/hosts" ]; then
+        print_error "找不到 inventory/hosts 檔案！"
         exit 1
     fi
     
@@ -63,41 +62,26 @@ check_prerequisites() {
 
 show_inventory() {
     print_info "主機清單內容："
-    cat hosts
+    cat inventory/hosts
 }
 
 ping_test() {
     print_info "測試 Ansible 連線..."
-    ansible -i hosts all -m ping
+    ansible -i inventory/hosts all -m ping
 }
 
-
+run_web_server_setup() {
+    print_info "執行 Web Server 部署..."
+    ansible-playbook -i inventory/hosts web_server_setup.yml
+    print_success "Web Server 部署完成"
+}
 
 # ==========================================
 # 主程式
 # ==========================================
-show_inventory
-ping_test
 
 print_banner
 check_prerequisites
 show_inventory
 ping_test
-
-run_web_server_setup() {
-    print_info "執行 Web Server 部署..."
-    ansible-playbook -i hosts web_server_setup.yml
-    print_success "Web Server 部署完成"
-}
-
-show_inventory() {
-    print_info "主機清單內容："
-    cat hosts
-}
-
-ping_test() {
-    print_info "測試 Ansible 連線..."
-    ansible -i hosts all -m ping
-}
-
-
+run_web_server_setup
