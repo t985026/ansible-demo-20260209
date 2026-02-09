@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ansible Deployed: {{ ansible_hostname }}</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; }
+        h1 { color: #007bff; }
+        .info { color: #555; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to {{ ansible_hostname }}</h1>
+    <p class="info">Deployed by Ansible on {{ ansible_date_time.date }}</p>
+    <p>Web Root: {{ web_root }}</p>
+</body>
+</html>

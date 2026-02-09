@@ -1,0 +1,179 @@
+---
+- name: System Hardening and Security Baseline
+  # 指定目標主機群組，對應 inventory 檔案中的 [security_targets]
+  hosts: security_targets
+  # 需要 root 權限來執行系統層級的加固
+  become: yes
+  # 變數已移至 group_vars/security_targets.yml 與 group_vars/all.yml
+  vars_files:
+    - secrets/credentials.yml
+    
+  tasks:
+    # --- 階段一：帳號與群組管理 ---
+    # Module 1: group (群組管理)
+    - name: 1. Create admin group (建立管理員群組)
+      group:
+        name: admins
+        state: present
+
+    - name: 2. Create audit group (建立稽核員群組)
+      group:
+        name: auditors
+        state: present
+
+    # Module 2: user (使用者管理)
+    - name: 3. Create sysadmin user (建立系統管理員帳號)
+      user:
+        name: "{{ admin_user }}" # 變數來源: group_vars/all.yml
+        groups: admins,sudo
+        shell: /bin/bash
+        state: present
+
+    - name: 4. Create auditor user (建立稽核員帳號)
+      user:
+        name: "{{ audit_user }}" # 變數來源: group_vars/all.yml
+        groups: auditors
+        shell: /bin/bash
+        state: present
+
+    - name: 5. Lock root account password (鎖定 root 密碼，強制禁止直接登入)
+      user:
+        name: root
+        password_lock: yes
+
+    # --- 階段二：SSH 安全加固 ---
+    # Module 3: authorized_key (SSH 金鑰管理)
+    - name: 6. Set authorized key for sysadmin (設定管理員 SSH 公鑰)
+      authorized_key:
+        user: "{{ admin_user }}"
+        state: present
+        key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC... dummy_key_content ... comment"
+
+    # Module 4: lineinfile (修改設定檔)
+    - name: 7. Disallow root SSH login (禁止 root 透過 SSH 登入)
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: 'PermitRootLogin no'
+        state: present
+      notify: restart_ssh # 若有變更，則觸發 handler 重啟 SSH 服務
+
+    - name: 8. Disable password authentication (禁止密碼登入，強制使用 Key)
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+        state: present
+      notify: restart_ssh
+
+    - name: 9. Set SSH idle timeout interval (設定 SSH 閒置逾時時間：300秒)
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^ClientAliveInterval'
+        line: 'ClientAliveInterval 300'
+        state: present
+      notify: restart_ssh
+
+    - name: 10. Set SSH idle timeout count (設定 SSH 逾時偵測次數)
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^ClientAliveCountMax'
+        line: 'ClientAliveCountMax 0'
+        state: present
+      notify: restart_ssh
+
+    - name: 11. Set max auth tries (設定最大認證嘗試次數)
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^MaxAuthTries'
+        line: 'MaxAuthTries 3'
+        state: present
+      notify: restart_ssh
+
+    # --- 階段三：安全性工具 ---
+    # Module 5: apt (套件安裝)
+    - name: 12. Install Fail2Ban (安裝 Fail2Ban 防暴力破解工具)
+      apt:
+        name: fail2ban
+        state: present
+        update_cache: yes
+
+    # Module 6: copy (設定檔部署)
+    - name: 13. Create local jail configuration (建立 Fail2Ban 自訂設定)
+      copy:
+        dest: /etc/fail2ban/jail.local
+        content: |
+          [DEFAULT]
+          bantime = 3600 # 封鎖時間 1 小時
+          findtime = 600
+          maxretry = 3 # 錯誤 3 次即封鎖
+          
+          [sshd]
+          enabled = true
+        mode: '0644'
+
+    # Module 7: service (服務控制)
+    - name: 14. Ensure Fail2Ban is running (啟動 Fail2Ban 服務)
+      service:
+        name: fail2ban
+        state: started
+        enabled: yes
+
+    # --- 階段四：防火牆設定 ---
+    # Module 8: ufw (防火牆管理)
+    - name: 15. Install UFW firewall (安裝 UFW)
+      apt:
+        name: ufw
+        state: present
+
+    - name: 16. Set UFW default deny incoming (預設拒絕所有傳入連線)
+      ufw:
+        default: deny
+        direction: incoming
+
+    - name: 17. Set UFW default allow outgoing (預設允許所有對外連線)
+      ufw:
+        default: allow
+        direction: outgoing
+
+    - name: 18. Limit SSH connections (限制 SSH 連線頻率，防止暴力破解)
+      ufw:
+        rule: limit
+        port: 22
+        proto: tcp
+
+    - name: 19. Enable UFW (啟用防火牆)
+      ufw:
+        state: enabled
+
+    # --- 階段五：系統標識與稽核 ---
+    # Module 9: hostname (主機名稱設定)
+    - name: 20. Set system hostname (設定主機名稱為 hardened-server)
+      hostname:
+        name: "hardened-server"
+
+    # Module 4: lineinfile (reuse)
+    - name: 21. Add hostname to /etc/hosts (將主機名稱加入 hosts 解析)
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^127\.0\.1\.1'
+        line: '127.0.1.1 hardened-server'
+        state: present
+
+    # Module 10: command (系統資傳查詢)
+    - name: 22. Check for listening ports (audit) (檢查目前監聽的通訊埠)
+      command: ss -tuln
+      register: listening_ports
+      changed_when: false # 此指令僅為查詢，視為無變更
+
+    # Module 11: debug (顯示結果)
+    - name: 23. Display listening ports (顯示監聽埠結果)
+      debug:
+        var: listening_ports.stdout_lines
+
+  # Handlers: 僅在有 notify 時觸發，通常用於重啟服務
+  handlers:
+    - name: restart_ssh
+      service:
+        name: sshd
+        state: restarted

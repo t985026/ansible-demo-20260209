@@ -1,0 +1,36 @@
+---
+- name: Distributed Network Connectivity Check
+  hosts: all
+  gather_facts: no
+  vars:
+    # 預設測試目標 (可於 group_vars 中覆寫)
+    connectivity_targets:
+      - { host: "8.8.8.8", port: 53, name: "Google DNS" }
+      - { host: "www.google.com", port: 80, name: "Google Web" }
+      
+  tasks:
+    - name: Check connectivity to targets (測試連線)
+      wait_for:
+        host: "{{ item.host }}"
+        port: "{{ item.port }}"
+        timeout: 2  # 逾時設定為 2 秒
+        state: started
+      with_items: "{{ connectivity_targets }}"
+      register: connection_result
+      ignore_errors: yes # 失敗不中斷，以便顯示完整報告
+
+    - name: Report Success (顯示成功項目)
+      debug:
+        msg: "SUCCESS: Connected to {{ item.item.name }} ({{ item.item.host }}:{{ item.item.port }})"
+      loop: "{{ connection_result.results }}"
+      when: item.failed == false
+      loop_control:
+        label: "{{ item.item.name }}"
+
+    - name: Report Failure (顯示失敗項目)
+      debug:
+        msg: "FAIL: Could not connect to {{ item.item.name }} ({{ item.item.host }}:{{ item.item.port }}) - {{ item.msg | default('Timeout') }}"
+      loop: "{{ connection_result.results }}"
+      when: item.failed == true
+      loop_control:
+        label: "{{ item.item.name }}"

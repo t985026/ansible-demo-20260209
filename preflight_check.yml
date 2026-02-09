@@ -1,0 +1,39 @@
+---
+- name: Pre-flight System Check
+  hosts: all
+  gather_facts: yes
+  become: no
+  
+  tasks:
+    - name: Check SSH connectivity
+      ping:
+      
+    - name: Verify sudo access
+      become: yes
+      command: whoami
+      register: whoami_result
+      failed_when: whoami_result.stdout != "root"
+      changed_when: false
+      
+    - name: Check disk space (minimum 10GB free)
+      assert:
+        that:
+          - ansible_mounts | selectattr('mount', 'equalto', '/') | map(attribute='size_available') | first > 10737418240
+        fail_msg: "根目錄可用空間不足 10GB"
+        success_msg: "磁碟空間檢查通過"
+      
+    - name: Check memory (minimum 2GB)
+      assert:
+        that:
+          - ansible_memtotal_mb >= 2048
+        fail_msg: "系統記憶體不足 2GB"
+        success_msg: "記憶體檢查通過"
+      
+    - name: Display pre-flight check summary
+      debug:
+        msg: |
+          ✓ SSH 連線正常
+          ✓ Sudo 權限確認
+          ✓ 磁碟空間充足
+          ✓ 記憶體充足
+          系統準備就緒，可進行部署

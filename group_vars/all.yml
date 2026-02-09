@@ -1,0 +1,16 @@
+---
+admin_user: sysadmin
+audit_user: auditor
+allowed_ssh_users: sysadmin
+log_dir: /var/log/ansible_managed_app
+
+# [Security] Password Management
+# 建議使用 ansible-vault 加密此檔案，或至少加密密碼雜湊
+# 產生雜湊指令: ansible all -i localhost, -m debug -a "msg={{ 'my_secret_password' | password_hash('sha512') }}"
+# user_password_hash: "$6$rounds=656000$..."
+
+# [Tooling] Connectivity Check Targets
+# 定義 tools/connectivity_check.yml 要測試的外部目標
+connectivity_targets:
+  - { host: "168.95.1.1", port: 53, name: "Hinet DNS" }
+  - { host: "github.com", port: 443, name: "GitHub HTTPS" }

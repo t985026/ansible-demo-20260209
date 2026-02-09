@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* { box-sizing: border-box; }
+body { width: 720pt; height: 405pt; margin: 0; padding: 30pt; background: #ffffff; font-family: Arial, sans-serif; display: flex; flex-direction: column; }
+h1 { font-size: 28pt; color: #CC0000; padding-bottom: 5pt; margin-bottom: 0px; }
+.separator { border-top: 2px solid #CC0000; margin-bottom: 15pt; }
+ul { font-size: 20pt; color: #333333; line-height: 1.4; }
+li { margin-bottom: 8pt; }
+.note { background: #fff3cd; color: #856404; padding: 10pt; margin-top: 15pt; border-left: 5px solid #ffeeba; }
+.note-text { font-size: 16pt; margin: 0; }
+code { font-family: 'Courier New', monospace; background: rgba(0,0,0,0.05); padding: 0 4pt; border-radius: 3pt; }
+</style>
+</head>
+<body>
+<h1>2. Handlers</h1>
+<div class="separator"></div>
+<ul>
+  <li><b>定義 (Definition):</b> 特殊的 Task，通常用於重啟服務。</li>
+  <li><b>觸發條件 (Trigger):</b> 只有當被通知的 Task 狀態為 "Changed" 時執行。</li>
+  <li><b>執行時機 (Execution):</b> 預設在所有 Play 完成後執行。</li>
+  <li><b>特性 (Feature):</b> 多次通知，僅執行一次 (Idempotent)。</li>
+</ul>
+<div class="note">
+  <p class="note-text"><b>Tip:</b> 使用 <code>notify: HandlerName</code> 來觸發 Handler。確保名稱完全一致。</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+---
+- name: Complete System Bootstrap - All-in-One Deployment
+  # 此 playbook 整合所有部署階段，適用於全新安裝的 Ubuntu/RHEL 系統
+  # 執行順序: 前置檢查 -> 基礎環境 -> 系統加固 -> Web 伺服器 (可選)
+  hosts: all
+  become: yes
+  gather_facts: yes
+  
+  vars_prompt:
+    - name: "deploy_web_server"
+      prompt: "是否部署 Web Server (Nginx)? (yes/no)"
+      default: "no"
+      private: no
+      
+    - name: "apply_hardening"
+      prompt: "是否執行系統加固? (yes/no)"
+      default: "yes"
+      private: no
+
+  vars_files:
+    - secrets/credentials.yml
+
+  pre_tasks:
+    - name: Display deployment configuration
+      debug:
+        msg: |
+          ==========================================
+          部署設定確認
+          ==========================================
+          目標主機: {{ ansible_hostname }}
+          作業系統: {{ ansible_distribution }} {{ ansible_distribution_version }}
+          Web Server 部署: {{ deploy_web_server }}
+          系統加固: {{ apply_hardening }}
+          ==========================================
+      
+    - name: Wait for user confirmation
+      pause:
+        prompt: "請確認以上資訊無誤，按 Enter 繼續或 Ctrl+C 取消"
+
+  tasks:
+    # ==========================================
+    # 階段一：引入基礎環境建置
+    # ==========================================
+    - name: Execute base system setup
+      import_tasks: base_system_setup.yml
+      tags: ['base', 'foundation']
+
+    # ==========================================
+    # 階段二：系統加固 (條件執行)
+    # ==========================================
+    - name: Execute system hardening
+      import_tasks: system_hardening.yml
+      when: apply_hardening | bool
+      tags: ['security', 'hardening']
+
+    # ==========================================
+    # 階段三：Web Server 部署 (條件執行)
+    # ==========================================
+    - name: Execute web server setup
+      import_tasks: web_server_setup.yml
+      when: deploy_web_server | bool
+      tags: ['webserver', 'nginx']
+
+  post_tasks:
+    - name: Final system verification
+      block:
+        - name: Check all critical services
+          service_facts:
+          
+        - name: Verify SSH service
+          assert:
+            that:
+              - ansible_facts.services['sshd.service'].state == 'running'
+            fail_msg: "SSH 服務異常"
+            success_msg: "SSH 服務運作正常"
+            
+        - name: Display deployment summary
+          debug:
+            msg: |
+              ==========================================
+              部署完成摘要
+              ==========================================
+              主機名稱: {{ ansible_hostname }}
+              IP 位址: {{ ansible_default_ipv4.address }}
+              作業系統: {{ ansible_distribution }} {{ ansible_distribution_version }}
+              核心版本: {{ ansible_kernel }}
+              Python 版本: {{ ansible_python_version }}
+              
+              已完成項目:
+              ✓ 基礎系統設定與套件更新
+              {% if apply_hardening | bool %}✓ 系統安全加固{% endif %}
+              {% if deploy_web_server | bool %}✓ Nginx Web Server 部署{% endif %}
+              
+              下一步建議:
+              1. 執行連線測試: ansible-playbook -i inventory/staging tools/connectivity_check.yml
+              2. 檢視系統狀態: systemctl status
+              3. 查看防火牆規則: {% if ansible_distribution == 'Ubuntu' %}ufw status{% else %}firewall-cmd --list-all{% endif %}
+              ==========================================
+      tags: ['verify', 'summary']

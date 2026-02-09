@@ -1,0 +1,4 @@
+---
+# Security specific variables can be added here if needed
+# Typically enforcing strict defaults
+allow_ssh_password_auth: no

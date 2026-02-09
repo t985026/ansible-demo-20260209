@@ -1,0 +1,153 @@
+---
+- name: Web Server Deployment and Configuration
+  # 指定目標主機群組，對應 inventory 檔案中的 [webservers]
+  hosts: webservers
+  # 使用 sudo 權限執行，因為安裝軟體與修改系統設定需要 root 權限
+  become: yes
+  # 變數已移至 group_vars/webservers.yml 與 group_vars/all.yml 統一管理
+  vars_files:
+    - secrets/credentials.yml
+
+  tasks:
+    # --- 階段一：基礎依賴安裝 ---
+    # Module 1: apt (套件管理)
+    - name: 1. Update apt cache (更新套件列表)
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600 # 若 1 小時內已更新過，則不重複更新
+
+    - name: 2. Install essential dependencies (安裝基礎工具)
+      apt:
+        name:
+          - curl
+          - git
+          - vim
+          - unzip
+        state: present
+
+    - name: 3. Install Nginx web server (安裝 Nginx 網頁伺服器)
+      apt:
+        name: nginx
+        state: present
+
+    # --- 階段二：服務狀態確保 ---
+    # Module 2: service (服務控制)
+    - name: 4. Ensure Nginx service is running and enabled (確保 Nginx 啟動並設定開機自啟)
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    # --- 階段三：環境配置 ---
+    # Module 3: file (檔案/目錄管理)
+    - name: 5. Create web root directory (建立網站根目錄)
+      file:
+        path: "{{ web_root }}" # 變數來源: group_vars/webservers.yml
+        state: directory
+        mode: '0755'
+
+    - name: 6. Create custom log directory (建立自訂日誌目錄)
+      file:
+        path: "{{ log_dir }}" # 變數來源: group_vars/all.yml
+        state: directory
+        mode: '0755'
+
+    # --- 階段四：權限管理 ---
+    # Module 4: user (使用者管理)
+    - name: 7. Create specific user for web administration (建立網頁管理專用帳號)
+      user:
+        name: "{{ web_user }}" # 變數來源: group_vars/webservers.yml
+        shell: /bin/bash
+        groups: sudo
+        append: yes # 保留使用者原有的群組，僅新增 sudo
+
+    # Module 3: file (reuse)
+    - name: 8. Set ownership of web root to web user (設定網站目錄擁有者)
+      file:
+        path: "{{ web_root }}"
+        owner: "{{ web_user }}"
+        group: "{{ web_user }}"
+        recurse: yes # 遞迴設定子目錄與檔案
+
+    # --- 階段五：內容部署 (使用 Template) ---
+    # Module 5: template (樣板部署)
+    - name: 9. Deploy custom index.html from template (部署自訂首頁 - Jinja2)
+      template:
+        src: templates/index.html.j2
+        dest: "{{ web_root }}/index.html"
+        owner: "{{ web_user }}"
+        group: "{{ web_user }}"
+        mode: '0644'
+
+    - name: 10. Deploy Nginx config from template (部署 Nginx 設定檔 - Jinja2)
+      template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+        backup: yes # 部署前自動備份舊檔
+      notify: restart_nginx # 設定變更後觸發重啟
+
+    # Module 3: file (reuse)
+    - name: 11. Create a dummy initial log file (建立初始日誌檔案)
+      file:
+        path: "{{ log_dir }}/access.log"
+        state: touch
+        mode: '0644'
+
+    # --- 階段六：備份與維護 ---
+    # (此指令已透過 template 的 backup=yes 取代，但保留作為範例)
+    # Module 6: command (執行 Shell 指令)
+    # - name: 12. Backup default nginx config
+    #   command: cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
+
+    # --- 階段七：網路安全性 ---
+    # Module 7: ufw (防火牆管理)
+    - name: 13. Install UFW (安裝 UFW 防火牆)
+      apt:
+        name: ufw
+        state: present
+
+    - name: 14. Allow SSH through firewall (允許 SSH 連線，避免將自己鎖在外面)
+      ufw:
+        rule: allow
+        name: OpenSSH
+
+    - name: 15. Allow Nginx HTTP traffic (允許 HTTP 流量)
+      ufw:
+        rule: allow
+        name: 'Nginx HTTP'
+
+    - name: 16. Enable UFW (啟用 UFW 防火牆)
+      ufw:
+        state: enabled
+
+    # Module 8: get_url (下載檔案)
+    - name: 17. Download a sample image (下載範例圖片)
+      get_url:
+        url: https://via.placeholder.com/150
+        dest: "{{ web_root }}/image.png"
+      ignore_errors: yes # 若下載失敗不中斷 Playbook
+
+    # --- 階段八：定期任務 ---
+    # Module 9: cron (排程工作)
+    - name: 18. Create a daily cron job for log rotation (建立日誌清理排程)
+      cron:
+        name: "Rotate custom logs"
+        minute: "0"
+        hour: "2" # 每天凌晨 2:00 執行
+        job: "/usr/bin/find {{ log_dir }} -type f -name '*.log' -mtime +7 -delete" # 刪除 7 天前的日誌
+
+    # --- 階段九：除錯與驗證 ---
+    # Module 10: debug (顯示訊息)
+    - name: 19. Display web root path (顯示變數值：網站根目錄)
+      debug:
+        msg: "The web root is located at {{ web_root }}"
+
+    - name: 20. Display web user (顯示變數值：管理員帳號)
+      debug:
+        msg: "The web admin user is {{ web_user }}"
+
+  handlers:
+    - name: restart_nginx
+      service:
+        name: nginx
+        state: restarted

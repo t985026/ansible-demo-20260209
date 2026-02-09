@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* { box-sizing: border-box; }
+body { width: 720pt; height: 405pt; margin: 0; padding: 30pt; background: #ffffff; font-family: Arial, sans-serif; display: flex; flex-direction: column; }
+h1 { font-size: 28pt; color: #CC0000; padding-bottom: 5pt; margin-bottom: 0px; }
+.separator { border-top: 2px solid #CC0000; margin-bottom: 15pt; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15pt; }
+.card { background: #f8f9fa; border: 1px solid #dee2e6; padding: 12pt; border-radius: 5pt; }
+h3 { margin-top: 0; color: #007bff; font-size: 18pt; margin-bottom: 5pt; }
+p { font-size: 14pt; color: #555; margin-bottom: 0; line-height: 1.3; }
+code { font-family: 'Courier New', monospace; background: #eee; padding: 2pt 4pt; border-radius: 3pt; font-size: 13pt; color: #d63384; }
+</style>
+</head>
+<body>
+<h1>3. Implementing Task Control</h1>
+<div class="separator"></div>
+<div class="grid">
+  <div class="card">
+    <h3>條件執行 (When)</h3>
+    <p>根據變數或 Facts 決定是否執行任務。<br>例如: <code>when: ansible_os_family == "Debian"</code></p>
+  </div>
+  <div class="card">
+    <h3>迴圈 (Loops)</h3>
+    <p>重複執行任務，處理列表或字典。<br>例如: <code>loop: [ 'pkg1', 'pkg2' ]</code></p>
+  </div>
+  <div class="card">
+    <h3>區塊 (Blocks)</h3>
+    <p>將多個任務分組，統一處理錯誤。<br>包含: <code>block</code>, <code>rescue</code>, <code>always</code></p>
+  </div>
+  <div class="card">
+    <h3>標籤 (Tags)</h3>
+    <p>選擇性執行部分任務。<br>指令: <code>--tags "install"</code></p>
+  </div>
+</div>
+</body>
+</html>

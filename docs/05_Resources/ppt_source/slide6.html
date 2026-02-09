@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* { box-sizing: border-box; }
+body { width: 720pt; height: 405pt; margin: 0; padding: 40pt; background: #ffffff; font-family: Arial, sans-serif; display: flex; flex-direction: column; }
+h1 { font-size: 32pt; color: #CC0000; padding-bottom: 10pt; margin-bottom: 0px; }
+.separator { border-top: 2px solid #CC0000; margin-bottom: 20pt; }
+table { width: 100%; border-collapse: collapse; font-size: 20pt; margin-top: 10pt; }
+th, td { border: 1px solid #dddddd; text-align: left; padding: 12pt; }
+th { background-color: #f2f2f2; color: #333; }
+tr:nth-child(even) { background-color: #f9f9f9; }
+</style>
+</head>
+<body>
+<h1>4. Deploying Files</h1>
+<div class="separator"></div>
+<table>
+  <tr>
+    <th>模組 (Module)</th>
+    <th>用途 (Usage)</th>
+    <th>特點 (Feature)</th>
+  </tr>
+  <tr>
+    <td><b>copy</b></td>
+    <td>部署靜態檔案</td>
+    <td>簡單、直接，適合不需變更的檔案</td>
+  </tr>
+  <tr>
+    <td><b>template</b></td>
+    <td>部署動態檔案</td>
+    <td>支援 Jinja2，適合配置檔</td>
+  </tr>
+  <tr>
+    <td><b>fetch</b></td>
+    <td>抓取遠端檔案</td>
+    <td>用於收集 Logs 或備份檔案</td>
+  </tr>
+</table>
+</body>
+</html>

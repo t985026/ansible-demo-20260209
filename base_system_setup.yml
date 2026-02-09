@@ -1,0 +1,344 @@
+---
+- name: Base System Setup for Ubuntu/RHEL After Fresh Installation
+  hosts: all
+  become: yes
+  gather_facts: yes
+  
+  vars_files:
+    - secrets/credentials.yml
+  
+  tasks:
+    # ==========================================
+    # 階段一：系統資訊收集與驗證
+    # ==========================================
+    - name: 1. Display OS Information
+      debug:
+        msg: |
+          Operating System: {{ ansible_distribution }} {{ ansible_distribution_version }}
+          Architecture: {{ ansible_architecture }}
+          Hostname: {{ ansible_hostname }}
+          Python Version: {{ ansible_python_version }}
+    
+    - name: 2. Verify supported OS (Ubuntu 20.04/22.04 or RHEL 7/8/9)
+      assert:
+        that:
+          - >
+            (ansible_distribution == 'Ubuntu' and ansible_distribution_version in ['20.04', '22.04', '24.04']) or
+            (ansible_distribution in ['RedHat', 'CentOS', 'Rocky', 'AlmaLinux'] and ansible_distribution_major_version in ['7', '8', '9'])
+        fail_msg: "不支援的作業系統版本！僅支援 Ubuntu 20.04/22.04/24.04 或 RHEL/CentOS/Rocky/AlmaLinux 7/8/9"
+        success_msg: "作業系統版本驗證通過"
+
+    # ==========================================
+    # 階段二：時區與地區設定
+    # ==========================================
+    - name: 3. Set timezone to Asia/Taipei
+      timezone:
+        name: Asia/Taipei
+
+    # ==========================================
+    # 階段三：套件管理系統更新 (Ubuntu)
+    # ==========================================
+    - name: 4. Update apt cache (Ubuntu)
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: 5. Upgrade all packages (Ubuntu)
+      apt:
+        upgrade: dist
+        autoremove: yes
+        autoclean: yes
+      when: ansible_distribution == 'Ubuntu'
+      register: apt_upgrade_result
+      changed_when: apt_upgrade_result.changed
+
+    # ==========================================
+    # 階段四：套件管理系統更新 (RHEL-based)
+    # ==========================================
+    - name: 6. Update yum/dnf cache (RHEL-based)
+      yum:
+        update_cache: yes
+      when: ansible_os_family == 'RedHat'
+
+    - name: 7. Upgrade all packages (RHEL-based)
+      yum:
+        name: '*'
+        state: latest
+      when: ansible_os_family == 'RedHat'
+      register: yum_upgrade_result
+      changed_when: yum_upgrade_result.changed
+
+    # ==========================================
+    # 階段五：基礎工具安裝 (Ubuntu)
+    # ==========================================
+    - name: 8. Install essential tools (Ubuntu)
+      apt:
+        name:
+          - vim
+          - curl
+          - wget
+          - git
+          - htop
+          - net-tools
+          - unzip
+          - tar
+          - gzip
+          - rsync
+          - tree
+          - ca-certificates
+          - gnupg
+          - lsb-release
+          - software-properties-common
+          - python3-pip
+          - python3-setuptools
+        state: present
+      when: ansible_distribution == 'Ubuntu'
+
+    # ==========================================
+    # 階段六：基礎工具安裝 (RHEL-based)
+    # ==========================================
+    - name: 9. Install essential tools (RHEL-based)
+      yum:
+        name:
+          - vim
+          - curl
+          - wget
+          - git
+          - htop
+          - net-tools
+          - unzip
+          - tar
+          - gzip
+          - rsync
+          - tree
+          - ca-certificates
+          - gnupg2
+          - python3-pip
+          - python3-setuptools
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    # ==========================================
+    # 階段七：Python 環境設置
+    # ==========================================
+    - name: 10. Create symlink for python3 as python (if not exists)
+      file:
+        src: /usr/bin/python3
+        dest: /usr/bin/python
+        state: link
+        force: no
+      failed_when: false
+
+    - name: 11. Upgrade pip to latest version
+      pip:
+        name: pip
+        state: latest
+        executable: pip3
+
+    # ==========================================
+    # 階段八：網路設定檢查
+    # ==========================================
+    - name: 12. Test internet connectivity
+      uri:
+        url: https://www.google.com
+        timeout: 10
+      register: internet_check
+      failed_when: false
+
+    - name: 13. Display connectivity status
+      debug:
+        msg: "Internet connectivity: {{ 'OK' if internet_check.status == 200 else 'FAILED' }}"
+
+    # ==========================================
+    # 階段九：系統限制與內核參數優化
+    # ==========================================
+    - name: 14. Set system limits - nofile
+      pam_limits:
+        domain: '*'
+        limit_type: '-'
+        limit_item: nofile
+        value: '65535'
+
+    - name: 15. Set system limits - nproc
+      pam_limits:
+        domain: '*'
+        limit_type: '-'
+        limit_item: nproc
+        value: '65535'
+
+    - name: 16. Configure sysctl parameters for performance
+      sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        state: present
+        reload: yes
+      loop:
+        - { name: 'net.ipv4.ip_forward', value: '0' }
+        - { name: 'net.ipv4.tcp_syncookies', value: '1' }
+        - { name: 'net.ipv4.tcp_max_syn_backlog', value: '2048' }
+        - { name: 'net.core.somaxconn', value: '1024' }
+        - { name: 'vm.swappiness', value: '10' }
+
+    # ==========================================
+    # 階段十：基礎目錄結構建立
+    # ==========================================
+    - name: 17. Create standard application directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /opt/apps
+        - /opt/scripts
+        - /opt/backups
+        - /var/log/ansible_managed_app
+
+    # ==========================================
+    # 階段十一：NTP 時間同步設定 (Ubuntu)
+    # ==========================================
+    - name: 18. Install chrony (Ubuntu)
+      apt:
+        name: chrony
+        state: present
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: 19. Install chrony (RHEL-based)
+      yum:
+        name: chrony
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    - name: 20. Ensure chrony service is running and enabled
+      service:
+        name: chronyd
+        state: started
+        enabled: yes
+
+    # ==========================================
+    # 階段十二：基礎安全設定
+    # ==========================================
+    - name: 21. Disable unnecessary services - avahi-daemon (if exists)
+      service:
+        name: avahi-daemon
+        state: stopped
+        enabled: no
+      failed_when: false
+
+    - name: 22. Disable unnecessary services - cups (if exists)
+      service:
+        name: cups
+        state: stopped
+        enabled: no
+      failed_when: false
+
+    # ==========================================
+    # 階段十三：防火牆基礎設定 (Ubuntu - UFW)
+    # ==========================================
+    - name: 23. Install UFW firewall (Ubuntu)
+      apt:
+        name: ufw
+        state: present
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: 24. Configure UFW default policies (Ubuntu)
+      ufw:
+        state: enabled
+        policy: "{{ item.policy }}"
+        direction: "{{ item.direction }}"
+      loop:
+        - { direction: 'incoming', policy: 'deny' }
+        - { direction: 'outgoing', policy: 'allow' }
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: 25. Allow SSH through UFW (Ubuntu)
+      ufw:
+        rule: allow
+        port: '22'
+        proto: tcp
+      when: ansible_distribution == 'Ubuntu'
+
+    # ==========================================
+    # 階段十四：防火牆基礎設定 (RHEL - firewalld)
+    # ==========================================
+    - name: 26. Install firewalld (RHEL-based)
+      yum:
+        name: firewalld
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    - name: 27. Ensure firewalld is running and enabled (RHEL-based)
+      service:
+        name: firewalld
+        state: started
+        enabled: yes
+      when: ansible_os_family == 'RedHat'
+
+    - name: 28. Allow SSH through firewalld (RHEL-based)
+      firewalld:
+        service: ssh
+        permanent: yes
+        state: enabled
+        immediate: yes
+      when: ansible_os_family == 'RedHat'
+
+    # ==========================================
+    # 階段十五：日誌輪替設定
+    # ==========================================
+    - name: 29. Install logrotate
+      package:
+        name: logrotate
+        state: present
+
+    - name: 30. Create custom logrotate config for ansible managed apps
+      copy:
+        dest: /etc/logrotate.d/ansible-managed
+        content: |
+          /var/log/ansible_managed_app/*.log {
+              daily
+              rotate 7
+              compress
+              delaycompress
+              missingok
+              notifempty
+              create 0640 root adm
+          }
+        mode: '0644'
+
+    # ==========================================
+    # 階段十六：系統資訊摘要
+    # ==========================================
+    - name: 31. Gather disk usage information
+      shell: df -h /
+      register: disk_info
+      changed_when: false
+
+    - name: 32. Gather memory information
+      shell: free -h
+      register: memory_info
+      changed_when: false
+
+    - name: 33. Display system resource summary
+      debug:
+        msg: |
+          ========================================
+          系統資源摘要
+          ========================================
+          磁碟使用狀況:
+          {{ disk_info.stdout }}
+          
+          記憶體使用狀況:
+          {{ memory_info.stdout }}
+          ========================================
+
+  # ==========================================
+  # Handlers (事件觸發處理器)
+  # ==========================================
+  handlers:
+    - name: restart_chrony
+      service:
+        name: chronyd
+        state: restarted
+
+    - name: reload_sysctl
+      command: sysctl -p

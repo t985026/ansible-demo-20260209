@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* { box-sizing: border-box; }
+body { width: 720pt; height: 405pt; margin: 0; padding: 40pt; background: #ffffff; font-family: Arial, sans-serif; display: flex; flex-direction: column; }
+h1 { font-size: 32pt; color: #CC0000; padding-bottom: 10pt; margin-bottom: 0px; }
+.separator { border-top: 2px solid #CC0000; margin-bottom: 20pt; }
+ul { font-size: 20pt; color: #333; line-height: 1.6; }
+span.code { font-family: 'Courier New', monospace; background: #eee; padding: 2pt 5pt; border-radius: 3pt; color: #d63384; font-size: 18pt; }
+</style>
+</head>
+<body>
+<h1>5. Troubleshooting</h1>
+<div class="separator"></div>
+<ul>
+  <li><b>Verbose Mode:</b> 使用 <span class="code">-v</span>, <span class="code">-vvv</span> 查看詳細執行過程。</li>
+  <li><b>Debug Module:</b> 使用 <span class="code">debug</span> 模組印出變數值或訊息。</li>
+  <li><b>Syntax Check:</b> <span class="code">ansible-playbook --syntax-check</span></li>
+  <li><b>Check Mode (Dry Run):</b> <span class="code">ansible-playbook --check</span> 模擬執行。</li>
+  <li><b>常見錯誤:</b> YAML 縮排、權限不足 (become)、連線問題。</li>
+</ul>
+</body>
+</html>

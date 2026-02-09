@@ -1,0 +1,107 @@
+---
+- name: System Information Collection
+  hosts: all
+  gather_facts: yes
+  become: no
+  
+  tasks:
+    - name: Display comprehensive system information
+      debug:
+        msg: |
+          ==========================================
+          系統資訊摘要
+          ==========================================
+          
+          【基本資訊】
+          主機名稱: {{ ansible_hostname }}
+          完整主機名: {{ ansible_fqdn }}
+          作業系統: {{ ansible_distribution }} {{ ansible_distribution_version }}
+          核心版本: {{ ansible_kernel }}
+          系統架構: {{ ansible_architecture }}
+          
+          【網路資訊】
+          主要 IP: {{ ansible_default_ipv4.address | default('N/A') }}
+          預設網卡: {{ ansible_default_ipv4.interface | default('N/A') }}
+          
+          【硬體資訊】
+          CPU 核心數: {{ ansible_processor_vcpus }}
+          CPU 型號: {{ ansible_processor[2] | default('N/A') }}
+          總記憶體: {{ (ansible_memtotal_mb / 1024) | round(2) }} GB
+          可用記憶體: {{ (ansible_memfree_mb / 1024) | round(2) }} GB
+          
+          【Python 環境】
+          Python 版本: {{ ansible_python_version }}
+          Python 路徑: {{ ansible_python.executable }}
+          
+          ==========================================
+    
+    - name: Gather disk usage
+      shell: df -h
+      register: disk_usage
+      changed_when: false
+      
+    - name: Display disk usage
+      debug:
+        var: disk_usage.stdout_lines
+    
+    - name: Gather installed packages count (Ubuntu)
+      shell: dpkg -l | grep -c '^ii'
+      register: package_count_ubuntu
+      when: ansible_distribution == 'Ubuntu'
+      changed_when: false
+      failed_when: false
+      
+    - name: Gather installed packages count (RHEL)
+      shell: rpm -qa | wc -l
+      register: package_count_rhel
+      when: ansible_os_family == 'RedHat'
+      changed_when: false
+      failed_when: false
+    
+    - name: Display package information
+      debug:
+        msg: "已安裝套件數量: {{ package_count_ubuntu.stdout | default(package_count_rhel.stdout) }}"
+    
+    - name: Check running services
+      service_facts:
+    
+    - name: Display critical services status
+      debug:
+        msg: |
+          【關鍵服務狀態】
+          SSH: {{ ansible_facts.services['sshd.service'].state | default('N/A') }}
+          Chrony: {{ ansible_facts.services['chronyd.service'].state | default('N/A') }}
+          Nginx: {{ ansible_facts.services['nginx.service'].state | default('未安裝') }}
+          Fail2Ban: {{ ansible_facts.services['fail2ban.service'].state | default('未安裝') }}
+          UFW: {{ ansible_facts.services['ufw.service'].state | default('N/A') }}
+          Firewalld: {{ ansible_facts.services['firewalld.service'].state | default('N/A') }}
+    
+    - name: Generate system report file
+      copy:
+        dest: "/tmp/system_report_{{ ansible_hostname }}_{{ ansible_date_time.date }}.txt"
+        content: |
+          ==========================================
+          系統資訊報告
+          生成時間: {{ ansible_date_time.iso8601 }}
+          ==========================================
+          
+          主機名稱: {{ ansible_hostname }}
+          作業系統: {{ ansible_distribution }} {{ ansible_distribution_version }}
+          核心版本: {{ ansible_kernel }}
+          IP 位址: {{ ansible_default_ipv4.address | default('N/A') }}
+          CPU: {{ ansible_processor_vcpus }} cores
+          記憶體: {{ (ansible_memtotal_mb / 1024) | round(2) }} GB
+          Python: {{ ansible_python_version }}
+          
+          磁碟使用狀況:
+          {{ disk_usage.stdout }}
+          
+          已安裝套件: {{ package_count_ubuntu.stdout | default(package_count_rhel.stdout) }}
+          
+          ==========================================
+      delegate_to: localhost
+      become: no
+    
+    - name: Report file location
+      debug:
+        msg: "系統報告已儲存至: /tmp/system_report_{{ ansible_hostname }}_{{ ansible_date_time.date }}.txt"
