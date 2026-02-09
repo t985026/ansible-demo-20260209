@@ -101,19 +101,13 @@
     - name: 12. Backup default nginx config
       command: cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
 
-    # --- 階段七：網路安全性 ---
-
-    - name: 16. Enable UFW (啟用 UFW 防火牆)
-      ufw:
-        state: enabled
-
-    # --- 階段九：除錯與驗證 ---
+    # --- 階段六：除錯與驗證 ---
     # Module 10: debug (顯示訊息)
-    - name: 19. Display web root path (顯示變數值：網站根目錄)
+    - name: 13. Display web root path (顯示變數值：網站根目錄)
       debug:
         msg: "The web root is located at {{ web_root }}"
 
-    - name: 20. Display web user (顯示變數值：管理員帳號)
+    - name: 14. Display web user (顯示變數值：管理員帳號)
       debug:
         msg: "The web admin user is {{ web_user }}"
 

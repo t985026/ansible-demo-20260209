@@ -125,11 +125,6 @@ ssh-copy-id -o StrictHostKeyChecking=no node01
 **症狀**: `Permission denied`
 **解決**: Playbook 已使用 `become: yes`，無需額外配置
 
-### 錯誤 4: UFW 防火牆阻擋
-
-**症狀**: `curl http://node01` 無法連線
-**解決**: Playbook 已預設開啟 80 和 443 port
-
 ## 🎓 預期執行結果
 
 成功執行後，您應該看到：
