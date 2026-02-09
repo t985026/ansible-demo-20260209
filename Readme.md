@@ -6,14 +6,39 @@
 
 所有的專案文件已移至 `docs/` 目錄，請參閱以下連結：
 
-- **[🚀 快速安裝指南 (Installation Guide)](docs/INSTALLATION_GUIDE.md)** ⭐ **NEW**
+### 🎯 核心文件
+
+- **[� 文件導航總覽 (Documentation Index)](docs/README.md)**
+  - 完整的文件結構與快速查找指南
+- **[�🚀 快速安裝指南 (Installation Guide)](docs/02_Operations_Deployment/INSTALLATION_GUIDE.md)** ⭐ **推薦**
   - 全新安裝 Ubuntu/RHEL 後的完整環境建置指南
-- **[01. 產品需求規格書 (PRD)](docs/01_PRD.md)**
-  - 專案目標、範圍與詳細需求規格。
-- **[02. 技術架構設計書 (Technical Architecture)](docs/02_Technical_Architecture.md)**
-  - 目錄結構、變數管理策略與網路架構設計。
-- **[03. 系統營運操作手冊 (Operation Manual)](docs/03_Operation_Manual.md)**
-  - 標準作業程序 (SOP)、環境準備與故障排除。
+
+### 📋 專案規劃文件
+
+- **[01. 產品需求規格書 (PRD)](docs/01_Project_Documentation/01_PRD.md)**
+  - 專案目標、範圍與詳細需求規格
+- **[02. 技術架構設計書 (Technical Architecture)](docs/01_Project_Documentation/02_Technical_Architecture.md)**
+  - 目錄結構、變數管理策略與網路架構設計
+- **[04. 專案路線圖 (Roadmap)](docs/01_Project_Documentation/04_Roadmap.md)**
+  - 功能開發計畫與里程碑
+- **[🔄 變更日誌 (CHANGELOG)](docs/01_Project_Documentation/CHANGELOG.md)** ⭐ **NEW**
+  - 專案版本更新歷史與重要變更記錄
+
+### 🛠️ 操作與部署文件
+
+- **[03. 系統營運操作手冊 (Operation Manual)](docs/02_Operations_Deployment/03_Operation_Manual.md)**
+  - 標準作業程序 (SOP)、環境準備與故障排除
+- **[📁 變數管理指南 (Variables Externalization)](docs/02_Operations_Deployment/VARS_EXTERNALIZATION.md)** ⭐ **NEW**
+  - group_vars 標準結構與最佳實踐
+- **[✅ 部署檢查清單 (Deployment Checklist)](docs/02_Operations_Deployment/CHECKLIST.md)** ⭐ **NEW**
+  - Killercoda 部署前檢查與常見問題排查
+
+### 📚 教學與培訓資源
+
+- **[Ansible 進階教學 (Advanced Tutorial)](docs/03_Training_Materials/Ansible_Advanced_Tutorial.md)**
+  - Templates、Handlers、Task Control 等進階主題
+- **[培訓手冊 (Training Manual)](docs/03_Training_Materials/Training_Manual.md)**
+  - 完整的培訓課程內容
 
 ## 🚀 快速開始 (Quick Start)
 
@@ -70,4 +95,13 @@ ansible-playbook -i inventory/staging system_hardening.yml
 | `tools/connectivity_check.yml` | 連線測試 | `ansible-playbook -i inventory/staging tools/connectivity_check.yml` |
 
 ---
-*詳細操作與變數設定請參閱 [快速安裝指南](docs/INSTALLATION_GUIDE.md) 或 [操作手冊](docs/03_Operation_Manual.md)。*
+
+## 📚 延伸閱讀
+
+- **[📖 完整文件導航](docs/README.md)** - 查看所有可用文件
+- **[🔄 變更日誌](docs/01_Project_Documentation/CHANGELOG.md)** - 了解專案演進歷程
+- **[📁 變數管理指南](docs/02_Operations_Deployment/VARS_EXTERNALIZATION.md)** - group_vars 最佳實踐
+
+---
+
+*詳細操作與變數設定請參閱 [快速安裝指南](docs/02_Operations_Deployment/INSTALLATION_GUIDE.md) 或 [操作手冊](docs/02_Operations_Deployment/03_Operation_Manual.md)。*

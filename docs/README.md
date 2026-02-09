@@ -12,6 +12,7 @@
 - **02_Technical_Architecture.md** - 技術架構文件
 - **04_Roadmap.md** - 專案路線圖
 - **PROJECT_OVERVIEW.md** - 專案總覽
+- **CHANGELOG.md** - 變更日誌 ⭐ **NEW**
 
 ### 02_Operations_Deployment (操作與部署)
 
@@ -20,6 +21,8 @@
 - **03_Operation_Manual.md** - 操作手冊
 - **DEPLOYMENT_SUMMARY.md** - 部署摘要
 - **INSTALLATION_GUIDE.md** - 安裝指南
+- **VARS_EXTERNALIZATION.md** - 變數管理指南 (group_vars 最佳實踐) ⭐ **NEW**
+- **CHECKLIST.md** - 部署檢查清單 (Killercoda 環境) ⭐ **NEW**
 
 ### 03_Training_Materials (教學資料)
 
@@ -54,9 +57,21 @@
 
 → 查看 `01_Project_Documentation/PROJECT_OVERVIEW.md`
 
+### 想查看版本變更歷史？
+
+→ 查看 `01_Project_Documentation/CHANGELOG.md` ⭐ **NEW**
+
 ### 需要部署或安裝？
 
 → 查看 `02_Operations_Deployment/INSTALLATION_GUIDE.md`
+
+### 部署前檢查環境？
+
+→ 查看 `02_Operations_Deployment/CHECKLIST.md` ⭐ **NEW**
+
+### 想了解變數管理最佳實踐？
+
+→ 查看 `02_Operations_Deployment/VARS_EXTERNALIZATION.md` ⭐ **NEW**
 
 ### 學習 Ansible 進階技巧？
 
@@ -90,4 +105,4 @@ node generate_ppt.js
 
 ---
 
-最後更新日期：2026年2月4日
+最後更新日期：2026年2月9日
