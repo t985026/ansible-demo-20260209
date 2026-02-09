@@ -9,7 +9,7 @@ async function createPresentation() {
     pptx.author = 'DevOps Team';
     pptx.title = 'Ansible Advanced Tutorial';
 
-    const slidesDir = path.join(__dirname, 'ppt_source');
+    const slidesDir = path.join(__dirname, '../05_Resources/ppt_source');
     const files = [
         'slide1.html',
         'slide2.html',
@@ -32,7 +32,7 @@ async function createPresentation() {
         }
     }
 
-    const outputFile = path.join(__dirname, 'Ansible_Advanced_Presentation.pptx');
+    const outputFile = path.join(__dirname, '../03_Training_Materials/Ansible_Advanced_Presentation.pptx');
     await pptx.writeFile({ fileName: outputFile });
     console.log(`Presentation created successfully at ${outputFile}`);
 }
