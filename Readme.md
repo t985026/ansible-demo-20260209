@@ -8,9 +8,9 @@
 
 ### 🎯 核心文件
 
-- **[� 文件導航總覽 (Documentation Index)](docs/README.md)**
+- **[🚀🚀 文件導航總覽 (Documentation Index)](docs/README.md)**
   - 完整的文件結構與快速查找指南
-- **[�🚀 快速安裝指南 (Installation Guide)](docs/02_Operations_Deployment/INSTALLATION_GUIDE.md)** ⭐ **推薦**
+- **[🚀🚀 快速安裝指南 (Installation Guide)](docs/02_Operations_Deployment/INSTALLATION_GUIDE.md)** ⭐ **推薦**
   - 全新安裝 Ubuntu/RHEL 後的完整環境建置指南
 
 ### 📋 專案規劃文件
