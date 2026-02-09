@@ -1,0 +1,8 @@
+---
+# Ansible Demo - Web Server Variables
+# 此文件定義 web_server_setup.yml 所需的所有變數
+
+# 網站相關配置
+web_root: /var/www/demo
+log_dir: /var/log/nginx_custom
+web_user: webadmin

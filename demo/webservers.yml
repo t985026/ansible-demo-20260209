@@ -1,4 +1,0 @@
----
-web_root: /var/www/my_custom_site
-log_dir: /var/log/nginx
-web_user: webadmin

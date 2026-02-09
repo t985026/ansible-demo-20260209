@@ -1,0 +1,8 @@
+---
+# Ansible Demo - All Groups Variables
+# 適用於所有主機的全域變數
+
+# 管理員帳號（所有主機共用）
+admin_user: ansible_admin
+
+# 其他全域配置可在此添加

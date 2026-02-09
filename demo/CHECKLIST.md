@@ -89,14 +89,36 @@ node01
 node01
 ```
 
-### web_server_setup.yml - vars 段落
+### group_vars/webservers.yml - webservers 群組變數
 
 ```yaml
-vars:
-  web_root: /var/www/demo
-  log_dir: /var/log/nginx_custom
-  web_user: webadmin
+---
+# Ansible Demo - Web Server Variables
+# 此文件定義 web_server_setup.yml 所需的所有變數
+
+# 網站相關配置
+web_root: /var/www/demo
+log_dir: /var/log/nginx_custom
+web_user: webadmin
 ```
+
+### group_vars/all.yml - 全域變數
+
+```yaml
+---
+# 所有主機共用的變數
+admin_user: ansible_admin
+```
+
+### web_server_setup.yml - 變數自動載入
+
+```yaml
+# Ansible 自動載入 group_vars/ 目錄下的變數
+# 無需 vars_files 聲明
+hosts: webservers  # 會自動載入 group_vars/webservers.yml
+```
+
+> **最佳實踐**: 使用 `group_vars/` 目錄結構，Ansible 會根據主機群組自動載入對應的變數文件。
 
 ### deploy.sh - 關鍵修正
 

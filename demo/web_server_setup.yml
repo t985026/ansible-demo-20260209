@@ -5,10 +5,8 @@
   # 使用 sudo 權限執行，因為安裝軟體與修改系統設定需要 root 權限
   become: yes
 
-  vars:
-    web_root: /var/www/demo
-    log_dir: /var/log/nginx_custom
-    web_user: webadmin
+  # 變數來源：group_vars/webservers.yml (自動載入)
+  # Ansible 會自動載入 group_vars/ 目錄下對應群組名稱的變數文件
 
   tasks:
     # --- 階段一：基礎依賴安裝 ---
@@ -50,7 +48,7 @@
 
     - name: 6. Create custom log directory (建立自訂日誌目錄)
       file:
-        path: "{{ log_dir }}" # 變數來源: group_vars/all.yml
+        path: "{{ log_dir }}" # 變數來源: group_vars/webservers.yml
         state: directory
         mode: '0755'
 

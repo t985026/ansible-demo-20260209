@@ -80,6 +80,9 @@ curl http://node01
 ```
 demo/
 ├── deploy.sh              # 自動化部署腳本
+├── group_vars/            # 群組變數目錄（Ansible 自動載入）
+│   ├── all.yml           # 所有主機共用的變數
+│   └── webservers.yml    # webservers 群組專用變數
 ├── inventory/
 │   └── hosts             # 主機清單（controlplane + node01）
 ├── templates/
@@ -116,8 +119,11 @@ A: 確認 Nginx 服務狀態：`ssh node01 "systemctl status nginx"`
 ## 🔗 延伸學習
 
 - 修改 `templates/index.html.j2` 自訂網頁內容
-- 調整 `web_server_setup.yml` 中的 `vars` 區段
+- 調整 `group_vars/webservers.yml` 中的變數（web_root, log_dir, web_user）
+- 在 `group_vars/all.yml` 添加全域變數
 - 嘗試添加更多主機到 `inventory/hosts`
+- 學習 Ansible 變數優先級：group_vars vs host_vars
+- 創建 `host_vars/` 目錄為特定主機定義變數
 
 ---
 
