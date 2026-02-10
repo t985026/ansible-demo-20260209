@@ -4,8 +4,10 @@
   hosts: webservers
   # 使用 sudo 權限執行，因為安裝軟體與修改系統設定需要 root 權限
   become: yes
-  # 變數已移至 group_vars/webservers.yml 與 group_vars/all.yml 統一管理
+  # 明確載入變數文件，確保在任何執行目錄下都能正確載入
   vars_files:
+    - group_vars/webservers.yml
+    - group_vars/all.yml
     - secrets/credentials.yml
 
   tasks:
@@ -73,7 +75,7 @@
     # Module 5: template (樣板部署)
     - name: 9. Deploy custom index.html from template (部署自訂首頁 - Jinja2)
       template:
-        src: templates/index.html.j2
+        src: ../templates/index.html.j2
         dest: "{{ web_root }}/index.html"
         owner: "{{ web_user }}"
         group: "{{ web_user }}"
@@ -81,7 +83,7 @@
 
     - name: 10. Deploy Nginx config from template (部署 Nginx 設定檔 - Jinja2)
       template:
-        src: templates/nginx.conf.j2
+        src: ../templates/nginx.conf.j2
         dest: /etc/nginx/nginx.conf
         backup: yes # 部署前自動備份舊檔
       notify: restart_nginx # 設定變更後觸發重啟
@@ -99,31 +101,42 @@
     # - name: 12. Backup default nginx config
     #   command: cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
 
-    # --- 階段七：網路安全性 ---
-    # Module 7: ufw (防火牆管理)
-    - name: 13. Install UFW (安裝 UFW 防火牆)
-      apt:
-        name: ufw
-        state: present
+    # --- 階段七：服務健康檢查與驗證 ---
+    # 註：本環境使用硬體防火牆，因此不啟用主機層級的 UFW
+    # Module 7: service_facts (服務狀態檢查)
+    - name: 13. Gather service facts (收集服務狀態資訊)
+      service_facts:
 
-    - name: 14. Allow SSH through firewall (允許 SSH 連線，避免將自己鎖在外面)
-      ufw:
-        rule: allow
-        name: OpenSSH
+    - name: 14. Verify Nginx is running (驗證 Nginx 服務運行中)
+      assert:
+        that:
+          - ansible_facts.services['nginx.service'].state == 'running'
+          - ansible_facts.services['nginx.service'].status == 'enabled'
+        fail_msg: "Nginx 服務未正常運行或未設定開機啟動"
+        success_msg: "Nginx 服務狀態正常"
 
-    - name: 15. Allow Nginx HTTP traffic (允許 HTTP 流量)
-      ufw:
-        rule: allow
-        name: 'Nginx HTTP'
+    # Module 8: uri (HTTP 健康檢查)
+    - name: 15. Check Nginx HTTP response (檢查 Nginx HTTP 回應)
+      uri:
+        url: "http://localhost"
+        status_code: 200
+        timeout: 5
+      register: nginx_health_check
+      retries: 3
+      delay: 2
+      until: nginx_health_check.status == 200
 
-    - name: 16. Enable UFW (啟用 UFW 防火牆)
-      ufw:
-        state: enabled
+    # Module 9: wait_for (端口監聽檢查)
+    - name: 16. Verify Nginx is listening on port 80 (驗證 Nginx 監聽 80 端口)
+      wait_for:
+        port: 80
+        state: started
+        timeout: 10
 
     # Module 8: get_url (下載檔案)
     - name: 17. Download a sample image (下載範例圖片)
       get_url:
-        url: https://via.placeholder.com/150
+        url: https://memeprod.sgp1.digitaloceanspaces.com/user-wtf/1722761115876.jpg
         dest: "{{ web_root }}/image.png"
       ignore_errors: yes # 若下載失敗不中斷 Playbook
 

@@ -4,8 +4,10 @@
   hosts: security_targets
   # 需要 root 權限來執行系統層級的加固
   become: yes
-  # 變數已移至 group_vars/security_targets.yml 與 group_vars/all.yml
+  # 明確載入變數文件，確保在任何執行目錄下都能正確載入
   vars_files:
+    - group_vars/security_targets.yml
+    - group_vars/all.yml
     - secrets/credentials.yml
     
   tasks:

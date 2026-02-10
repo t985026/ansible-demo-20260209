@@ -32,6 +32,8 @@
   - group_vars 標準結構與最佳實踐
 - **[✅ 部署檢查清單 (Deployment Checklist)](docs/02_Operations_Deployment/CHECKLIST.md)** ⭐ **NEW**
   - Killercoda 部署前檢查與常見問題排查
+- **[⚡ 專案最佳化說明 (Optimization Guide)](OPTIMIZATION.md)** ⭐ **2026-02-10**
+  - 基於 demo 測試的專案優化記錄與最佳實踐
 
 ### 📚 教學與培訓資源
 

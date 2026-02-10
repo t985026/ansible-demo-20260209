@@ -1,3 +1,8 @@
 ---
+# Ansible Project - Web Server Variables
+# 此文件定義 webservers 群組的專用變數
+
+# 網站相關配置
 web_root: /var/www/my_custom_site
 web_user: webadmin
+log_dir: /var/log/nginx_custom

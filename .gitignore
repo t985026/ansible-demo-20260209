@@ -1,0 +1,38 @@
+# Ansible 相關
+*.retry
+ansible.log
+.ansible/
+
+# 日誌文件
+log.txt
+logs.txt
+*.log
+
+# 臨時文件
+/tmp/
+*.tmp
+*.swp
+*~
+
+# 密碼和敏感資料（已由 ansible-vault 加密的除外）
+secrets/*.yml
+!secrets/credentials.yml
+
+# IDE 相關
+.vscode/
+.idea/
+*.code-workspace
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# OS 相關
+.DS_Store
+Thumbs.db
+desktop.ini
