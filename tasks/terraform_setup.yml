@@ -1,7 +1,7 @@
 ---
 - name: Terraform Workstation & DevOps Tools Setup
   # 部署目標：所有伺服器或指定開發機 (Webservers/Node01)
-  hosts: webservers
+  hosts: bastion
   become: yes
   
   # 變數載入 (遵循您的相對路徑習慣)
@@ -25,6 +25,10 @@
       apt:
         update_cache: yes
         cache_valid_time: 3600
+      register: apt_update
+      retries: 10
+      delay: 5
+      until: apt_update is success
 
     - name: 2. Install essential dependencies
       apt:
@@ -38,6 +42,10 @@
           - make
           - tree
         state: present
+      register: apt_install_deps
+      retries: 10
+      delay: 5
+      until: apt_install_deps is success
 
     # Module 2: file
     - name: 3. Create directory for keyrings
@@ -55,6 +63,9 @@
         url: https://apt.releases.hashicorp.com/gpg
         dest: /tmp/hashicorp.gpg
       register: download_gpg
+      retries: 5
+      delay: 2
+      until: download_gpg is success
 
     # Module 4: command
     - name: 5. Dearmor and install HashiCorp keyring
@@ -73,11 +84,19 @@
     - name: 7. Update apt cache (force update for new repo)
       apt:
         update_cache: yes
+      register: apt_update_repo
+      retries: 5
+      delay: 5
+      until: apt_update_repo is success
 
     - name: 8. Install Terraform (Latest)
       apt:
         name: terraform
-        state: active
+        state: present
+      register: apt_install_tf
+      retries: 5
+      delay: 5
+      until: apt_install_tf is success
 
     # ==========================================
     # 階段三：安裝 Tfenv 版本管理器 (Tasks 9-11)

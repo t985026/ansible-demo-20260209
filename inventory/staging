@@ -2,6 +2,9 @@
 controlplane
 node01
 
+[bastion]
+localhost ansible_connection=local
+
 [webservers]
 node01
 
