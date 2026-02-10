@@ -5,8 +5,10 @@
   # 使用 sudo 權限執行，因為安裝軟體與修改系統設定需要 root 權限
   become: yes
 
-  # 變數來源：group_vars/webservers.yml (自動載入)
-  # Ansible 會自動載入 group_vars/ 目錄下對應群組名稱的變數文件
+  # 變數來源：明確載入 group_vars/webservers.yml
+  # 使用 vars_files 明確指定變數文件，確保在任何執行目錄下都能正確載入
+  vars_files:
+    - ../group_vars/webservers.yml
 
   tasks:
     # --- 階段一：基礎依賴安裝 ---
