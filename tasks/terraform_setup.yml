@@ -1,0 +1,227 @@
+---
+- name: Terraform Workstation & DevOps Tools Setup
+  # 部署目標：所有伺服器或指定開發機 (Webservers/Node01)
+  hosts: webservers
+  become: yes
+  
+  # 變數載入 (遵循您的相對路徑習慣)
+  vars_files:
+    - ../group_vars/all.yml
+    - ../secrets/credentials.yml
+
+  vars:
+    # 定義工具版本與路徑變數
+    tflint_version: "v0.50.3"
+    tf_docs_version: "v0.17.0"
+    base_dir: "/home/{{ web_user | default('ubuntu') }}"
+    workspace_dir: "{{ base_dir }}/terraform_workspace"
+
+  tasks:
+    # ==========================================
+    # 階段一：系統依賴與基礎環境 (Tasks 1-3)
+    # ==========================================
+    # Module 1: apt
+    - name: 1. Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: 2. Install essential dependencies
+      apt:
+        name:
+          - curl
+          - wget
+          - git
+          - unzip
+          - software-properties-common
+          - gnupg
+          - make
+          - tree
+        state: present
+
+    # Module 2: file
+    - name: 3. Create directory for keyrings
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    # ==========================================
+    # 階段二：安裝 Terraform Core (Tasks 4-8)
+    # ==========================================
+    # Module 3: get_url
+    - name: 4. Download HashiCorp GPG key
+      get_url:
+        url: https://apt.releases.hashicorp.com/gpg
+        dest: /tmp/hashicorp.gpg
+      register: download_gpg
+
+    # Module 4: command
+    - name: 5. Dearmor and install HashiCorp keyring
+      command: gpg --dearmor -o /etc/apt/keyrings/hashicorp-archive-keyring.gpg /tmp/hashicorp.gpg
+      args:
+        creates: /etc/apt/keyrings/hashicorp-archive-keyring.gpg
+      notify: cleanup_temp_files # Handler 1
+
+    # Module 5: apt_repository
+    - name: 6. Add HashiCorp repository
+      apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+        state: present
+        filename: hashicorp
+
+    - name: 7. Update apt cache (force update for new repo)
+      apt:
+        update_cache: yes
+
+    - name: 8. Install Terraform (Latest)
+      apt:
+        name: terraform
+        state: active
+
+    # ==========================================
+    # 階段三：安裝 Tfenv 版本管理器 (Tasks 9-11)
+    # ==========================================
+    # Module 6: git
+    - name: 9. Clone tfenv repository
+      git:
+        repo: https://github.com/tfutils/tfenv.git
+        dest: "{{ base_dir }}/.tfenv"
+        update: yes
+      become_user: "{{ web_user | default('ubuntu') }}"
+
+    - name: 10. Create bin directory for tfenv
+      file:
+        path: "{{ base_dir }}/.local/bin"
+        state: directory
+        mode: '0755'
+        owner: "{{ web_user | default('ubuntu') }}"
+
+    # Module 7: lineinfile
+    # 在 .bashrc 設定 PATH，確保 tfenv 可用
+    - name: 11. Add tfenv to PATH in .bashrc
+      lineinfile:
+        path: "{{ base_dir }}/.bashrc"
+        line: 'export PATH="$HOME/.tfenv/bin:$PATH"'
+        state: present
+        insertafter: EOF
+
+    # ==========================================
+    # 階段四：安裝 TFLint 代碼檢查工具 (Tasks 12-15)
+    # ==========================================
+    - name: 12. Download TFLint zip archive
+      get_url:
+        url: "https://github.com/terraform-linters/tflint/releases/download/{{ tflint_version }}/tflint_linux_amd64.zip"
+        dest: "/tmp/tflint.zip"
+
+    # Module 8: unarchive
+    - name: 13. Extract TFLint to /usr/local/bin
+      unarchive:
+        src: "/tmp/tflint.zip"
+        dest: "/usr/local/bin"
+        remote_src: yes
+        mode: '0755'
+      notify: cleanup_temp_files # 重複使用 Handler
+
+    - name: 14. Verify TFLint installation
+      command: tflint --version
+      register: tflint_check
+      changed_when: false
+
+    # Module 9: debug
+    - name: 15. Display TFLint version
+      debug:
+        msg: "TFLint installed: {{ tflint_check.stdout }}"
+
+    # ==========================================
+    # 階段五：安裝 Terraform Docs (Tasks 16-18)
+    # ==========================================
+    - name: 16. Download terraform-docs
+      get_url:
+        url: "https://github.com/terraform-docs/terraform-docs/releases/download/{{ tf_docs_version }}/terraform-docs-{{ tf_docs_version }}-linux-amd64.tar.gz"
+        dest: "/tmp/terraform-docs.tar.gz"
+
+    - name: 17. Extract terraform-docs
+      unarchive:
+        src: "/tmp/terraform-docs.tar.gz"
+        dest: "/tmp"
+        remote_src: yes
+      notify: cleanup_temp_files
+
+    # Module 10: copy
+    - name: 18. Move terraform-docs binary to system path
+      copy:
+        src: "/tmp/terraform-docs"
+        dest: "/usr/local/bin/terraform-docs"
+        mode: '0755'
+        remote_src: yes
+
+    # ==========================================
+    # 階段六：工作區與便利配置 (Tasks 19-22)
+    # ==========================================
+    - name: 19. Create Terraform workspace directory
+      file:
+        path: "{{ workspace_dir }}"
+        state: directory
+        owner: "{{ web_user | default('ubuntu') }}"
+        group: "{{ web_user | default('ubuntu') }}"
+        mode: '0755'
+
+    - name: 20. Create specific lab project folder
+      file:
+        path: "{{ workspace_dir }}/lab01"
+        state: directory
+        owner: "{{ web_user | default('ubuntu') }}"
+        group: "{{ web_user | default('ubuntu') }}"
+
+    - name: 21. Create sample main.tf
+      copy:
+        dest: "{{ workspace_dir }}/lab01/main.tf"
+        owner: "{{ web_user | default('ubuntu') }}"
+        content: |
+          terraform {
+            required_version = ">= 1.0.0"
+          }
+          
+          resource "null_resource" "example" {
+            provisioner "local-exec" {
+              command = "echo 'Hello Ansible Terraform!'"
+            }
+          }
+
+    - name: 22. Setup useful aliases (tf -> terraform)
+      lineinfile:
+        path: "{{ base_dir }}/.bashrc"
+        line: "alias tf='terraform'"
+        state: present
+
+    # ==========================================
+    # 階段七：驗證安裝結果 (Tasks 23-24)
+    # ==========================================
+    - name: 23. Verify Terraform version
+      command: terraform --version
+      register: tf_version_output
+      changed_when: false
+
+    - name: 24. Show final installation summary
+      debug:
+        msg:
+          - "Terraform Setup Completed Successfully!"
+          - "Version: {{ tf_version_output.stdout.split('\n')[0] }}"
+          - "Workspace: {{ workspace_dir }}"
+          - "Tools: TFLint, tfenv, terraform-docs installed."
+
+  # ==========================================
+  # Handlers (事件處理)
+  # ==========================================
+  handlers:
+    - name: cleanup_temp_files
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/hashicorp.gpg
+        - /tmp/tflint.zip
+        - /tmp/terraform-docs.tar.gz
+        - /tmp/terraform-docs
+      listen: "cleanup_temp_files"
