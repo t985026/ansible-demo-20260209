@@ -46,6 +46,14 @@
 
 ### 新系統完整部署 (推薦)
 
+#### 下載專案
+
+```bash
+# === 下載專案===
+git clone https://github.com/t985026/ansible-demo-20260209.git
+cd ansible-demo-20260209
+```
+
 #### 方法 A：使用互動式腳本
 
 ```bash

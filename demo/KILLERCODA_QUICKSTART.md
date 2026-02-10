@@ -10,7 +10,7 @@ apt update && apt install ansible -y
 ssh-keygen -t rsa -b 2048 -N "" -f ~/.ssh/id_rsa
 ssh-copy-id -o StrictHostKeyChecking=no node01
 
-# === 步驟 3: 下載專案（替換為您的 Git URL）===
+# === 步驟 3: 下載專案 ===
 git clone https://github.com/t985026/ansible-demo-20260209.git
 cd ansible-demo-20260209/demo
 

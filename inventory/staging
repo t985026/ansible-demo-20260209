@@ -1,5 +1,9 @@
+[servers]
+controlplane
+node01
+
 [webservers]
-localhost ansible_connection=local
+node01
 
 [security_targets]
 localhost ansible_connection=local

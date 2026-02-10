@@ -6,9 +6,9 @@
   become: yes
   # 明確載入變數文件，確保在任何執行目錄下都能正確載入
   vars_files:
-    - group_vars/webservers.yml
-    - group_vars/all.yml
-    - secrets/credentials.yml
+    - ../group_vars/webservers.yml
+    - ../group_vars/all.yml
+    - ../secrets/credentials.yml
 
   tasks:
     # --- 階段一：基礎依賴安裝 ---
