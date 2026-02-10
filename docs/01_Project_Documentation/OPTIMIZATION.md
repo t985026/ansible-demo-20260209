@@ -250,8 +250,8 @@ ansible-playbook -i inventory/staging tasks/web_server_setup.yml -v
 
 ## 📚 相關文件
 
-- [VARS_EXTERNALIZATION.md](demo/VARS_EXTERNALIZATION.md) - Demo 目錄的變數外部化文件
-- [TROUBLESHOOTING_VARS.md](demo/TROUBLESHOOTING_VARS.md) - 變數問題疑難排解
+- [VARS_EXTERNALIZATION.md](../../demo/VARS_EXTERNALIZATION.md) - Demo 目錄的變數外部化文件
+- [TROUBLESHOOTING_VARS.md](../../demo/TROUBLESHOOTING_VARS.md) - 變數問題疑難排解
 - [Ansible 官方文件 - Variables](https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html)
 
 ---

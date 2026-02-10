@@ -32,7 +32,9 @@
   - group_vars 標準結構與最佳實踐
 - **[✅ 部署檢查清單 (Deployment Checklist)](docs/02_Operations_Deployment/CHECKLIST.md)** ⭐ **NEW**
   - Killercoda 部署前檢查與常見問題排查
-- **[⚡ 專案最佳化說明 (Optimization Guide)](OPTIMIZATION.md)** ⭐ **2026-02-10**
+- **[🛠️ Terraform 使用指南 (Terraform Guide)](docs/02_Operations_Deployment/TERRAFORM_GUIDE.md)** ⭐ **NEW**
+  - Terraform DevOps 環境建置與工具使用說明
+- **[⚡ 專案最佳化說明 (Optimization Guide)](docs/01_Project_Documentation/OPTIMIZATION.md)** ⭐ **2026-02-10**
   - 基於 demo 測試的專案優化記錄與最佳實踐
 
 ### 📚 教學與培訓資源
@@ -102,6 +104,7 @@ ansible-playbook -i inventory/staging tasks/system_hardening.yml
 | `tasks/system_hardening.yml` | 系統安全加固 | `ansible-playbook -i inventory/staging tasks/system_hardening.yml` |
 | `tasks/web_server_setup.yml` | Web Server 部署 | `ansible-playbook -i inventory/staging tasks/web_server_setup.yml` |
 | `tasks/complete_bootstrap.yml` | 完整系統部署 | `ansible-playbook -i inventory/staging tasks/complete_bootstrap.yml` |
+| `tasks/terraform_setup.yml` | Terraform DevOps 環境 | `ansible-playbook -i inventory/staging tasks/terraform_setup.yml` |
 | `tools/connectivity_check.yml` | 連線測試 | `ansible-playbook -i inventory/staging tools/connectivity_check.yml` |
 
 ---

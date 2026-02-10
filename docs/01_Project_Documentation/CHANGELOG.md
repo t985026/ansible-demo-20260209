@@ -1,5 +1,42 @@
 # 🔄 Demo 更新日誌
 
+## 版本 1.2 - 2026-02-10
+
+### 🚀 新增功能
+
+#### 1. Terraform DevOps 環境部署
+
+- ✅ **新增**: `tasks/terraform_setup.yml` Playbook
+- ✅ **功能**: 自動建置完整的 Terraform 工作站
+- **包含工具**:
+  - `terraform` (Infrastructure as Code 工具)
+  - `tflint` (Terraform 代码檢查工具)
+  - `tfenv` (Terraform 版本管理器)
+  - `terraform-docs` (自動文件生成工具)
+- **特色**:
+  - 自動配置環境變數與 Alias (`tf` -> `terraform`)
+  - 建立測試用工作區與範例代碼
+
+### 🔧 變更內容
+
+#### 1. web_server_setup.yml 防火牆策略調整
+
+- ❌ **移除**: UFW 軟體防火牆配置 (因環境使用硬體防火牆)
+- ✅ **新增**: 服務健康檢查與驗證任務
+  - `service_facts`: 收集服務狀態
+  - `assert`: 驗證 Nginx 服務狀態
+  - `uri`: 執行 HTTP 健康檢查
+  - `wait_for`: 確認 Port 80 監聽狀態
+
+#### 2. 專案結構優化
+
+- ✅ **變數載入**: Playbook 改用相對路徑 (`../group_vars`) 明確載入變數，支援在 `tasks/` 目錄下執行
+- ✅ **文件結構**:
+  - 新增 `docs/02_Operations_Deployment/TERRAFORM_GUIDE.md` (Terraform 使用指南)
+  - 遷移最佳化文件至 `docs/01_Project_Documentation/` 目錄 (`OPTIMIZATION.md` & `OPTIMIZATION_SUMMARY.md`)
+
+---
+
 ## 版本 1.1 - 2026-02-09
 
 ### 🔧 變更內容

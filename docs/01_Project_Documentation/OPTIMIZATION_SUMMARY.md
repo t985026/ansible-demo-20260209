@@ -152,7 +152,7 @@ vars_files:
 
 ### 新增
 
-7. `ansible.cfg` - 專案配置文件
+1. `ansible.cfg` - 專案配置文件
 2. `.gitignore` - 版本控制排除規則
 3. `OPTIMIZATION.md` - 優化說明文件
 4. `OPTIMIZATION_SUMMARY.md` - 本文件
@@ -234,8 +234,8 @@ ansible-playbook -i inventory/staging tasks/complete_bootstrap.yml -v
 ## 🔗 相關文件
 
 - [OPTIMIZATION.md](OPTIMIZATION.md) - 詳細優化說明
-- [demo/VARS_EXTERNALIZATION.md](demo/VARS_EXTERNALIZATION.md) - 變數外部化文件
-- [demo/TROUBLESHOOTING_VARS.md](demo/TROUBLESHOOTING_VARS.md) - 疑難排解指南
+- [demo/VARS_EXTERNALIZATION.md](../../demo/VARS_EXTERNALIZATION.md) - 變數外部化文件
+- [demo/TROUBLESHOOTING_VARS.md](../../demo/TROUBLESHOOTING_VARS.md) - 疑難排解指南
 
 ---
 
