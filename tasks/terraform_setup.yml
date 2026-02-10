@@ -1,7 +1,7 @@
 ---
 - name: Terraform Workstation & DevOps Tools Setup
   # 部署目標：所有伺服器或指定開發機 (Webservers/Node01)
-  hosts: webservers
+  hosts: bastion
   become: yes
   
   # 變數載入 (遵循您的相對路徑習慣)
